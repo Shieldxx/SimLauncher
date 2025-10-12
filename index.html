@@ -24,6 +24,11 @@
             <p>Zvolte, které aplikace se spustí s touto hrou:</p>
             <div id="app-checkboxes">
                 </div>
+            
+            <div class="setting-item">
+                <input type="checkbox" id="launch-game-automatically">
+                <label for="launch-game-automatically">Spustit hru automaticky po spuštění utilit (vypnout pro volbu VR/Monitor)</label>
+            </div>
             <button onclick="saveProfileSettings()">Uložit Nastavení Profilu</button>
             <button onclick="hideProfileEditor()">Zavřít</button>
             <div id="profile-status"></div>
@@ -51,238 +56,242 @@
     </div>
 
     <script>
-        const { ipcRenderer } = require('electron');
+    const { ipcRenderer } = require('electron');
 
-        // --- GLOBÁLNÍ PROMĚNNÉ ---
-        let appPaths = {}; 
-        let gamePaths = {}; 
-        let currentEditingGameKey = null;
-        
-        const GAME_LIST = {
-            "Assetto Corsa Competizione (ACC)": 'acc',
-            "iRacing": 'iracing',
-            "Automobilista 2 (AMS2)": 'ams2'
-        };
-        
-        const UTILITY_APPS = ['simhub', 'crewchief', 'tradingpaints', 'garage61', 'customapp1'];
-        
-        const PATH_MAPPINGS = {
-            // Utility
-            'simhub-path': 'simhub', 'crewchief-path': 'crewchief', 'tradingpaints-path': 'tradingpaints',
-            'garage61-path': 'garage61', 'customapp1-path': 'customapp1',
-            // Hry
-            'acc-path': 'acc', 'iracing-path': 'iracing', 'ams2-path': 'ams2'
-        };
+    // --- GLOBÁLNÍ PROMĚNNÉ ---
+    let appPaths = {}; 
+    let gamePaths = {}; 
+    let currentEditingGameKey = null;
+    
+    const GAME_LIST = {
+        "Assetto Corsa Competizione (ACC)": 'acc',
+        "iRacing": 'iracing',
+        "Automobilista 2 (AMS2)": 'ams2'
+    };
+    
+    const UTILITY_APPS = ['simhub', 'crewchief', 'tradingpaints', 'garage61', 'customapp1'];
+    
+    const PATH_MAPPINGS = {
+        'simhub-path': 'simhub', 'crewchief-path': 'crewchief', 'tradingpaints-path': 'tradingpaints',
+        'garage61-path': 'garage61', 'customapp1-path': 'customapp1',
+        'acc-path': 'acc', 'iracing-path': 'iracing', 'ams2-path': 'ams2'
+    };
 
-        // --- ZÁKLADNÍ FUNKCE UI ---
+    // --- ZÁKLADNÍ FUNKCE UI ---
 
-          // --- IPC PRO BROWSE PATH ---
-        function browsePath(inputId) {
-            // Kontrola, zda je prvek pro danou cestu dostupný
-            if (!document.getElementById(inputId)) return; 
-            
-            // Posíláme požadavek A ID POLE, které chceme aktualizovat
-            ipcRenderer.send('browse-path', inputId); 
+    function showTab(tabId) {
+        document.getElementById('profile-editor').style.display = 'none';
+        document.getElementById('game-list').style.display = 'flex';
+        
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // --- ULOŽENÍ/NAČÍTÁNÍ GLOBÁLNÍCH CEST ---
+
+    function loadSettings() {
+        const savedAppPaths = localStorage.getItem('simLauncherAppPaths');
+        if (savedAppPaths) appPaths = JSON.parse(savedAppPaths);
+        
+        const savedGamePaths = localStorage.getItem('simLauncherGamePaths');
+        if (savedGamePaths) gamePaths = JSON.parse(savedGamePaths);
+        
+        for (const id in PATH_MAPPINGS) {
+            const key = PATH_MAPPINGS[id];
+            const pathValue = appPaths[key] || gamePaths[key] || '';
+            if(document.getElementById(id)) { 
+                document.getElementById(id).value = pathValue;
+            }
         }
+    }
+
+    function saveSettings() {
+        for (const id in PATH_MAPPINGS) {
+            const key = PATH_MAPPINGS[id];
+            const value = document.getElementById(id).value;
+            
+            if (UTILITY_APPS.includes(key)) {
+                appPaths[key] = value;
+            } else {
+                gamePaths[key] = value;
+            }
+        }
+
+        localStorage.setItem('simLauncherAppPaths', JSON.stringify(appPaths));
+        localStorage.setItem('simLauncherGamePaths', JSON.stringify(gamePaths));
+
+        document.getElementById('settings-status').textContent = 'Globální cesty uloženy!';
+        document.getElementById('settings-status').style.color = 'lightgreen';
         
-        // Čeká na výsledek z main.js a aktualizuje správné pole
-        ipcRenderer.on('browse-path-result', (event, result) => {
-            if (result.filePath) {
-                // Výsledek obsahuje objekt {filePath: 'cesta', inputId: 'id_pole'}
-                document.getElementById(result.inputId).value = result.filePath;
-                // Po aktualizaci cesty uložíme nastavení, aby se zapsalo do localStorage
-                saveSettings(); 
+        generateGameButtons();
+    }
+
+    // --- GENERÁTOR UI ---
+
+    function generateGameButtons() {
+        const listDiv = document.getElementById('game-list');
+        listDiv.innerHTML = ''; 
+        
+        for (const name in GAME_LIST) {
+            const key = GAME_LIST[name];
+            
+            const container = document.createElement('div');
+            container.classList.add('game-profile');
+
+            const launchBtn = document.createElement('button');
+            launchBtn.textContent = name;
+            launchBtn.onclick = () => launchGameProfile(key);
+            
+            const settingsBtn = document.createElement('button');
+            settingsBtn.textContent = '⚙️'; 
+            settingsBtn.classList.add('settings-icon');
+            settingsBtn.onclick = (e) => {
+                e.stopPropagation();
+                showProfileEditor(key, name);
+            }
+
+            container.appendChild(launchBtn);
+            container.appendChild(settingsBtn);
+            listDiv.appendChild(container);
+        }
+    }
+    
+    // --- EDITOR PROFILU (včetně logiky pro automatické spouštění) ---
+
+    function showProfileEditor(gameKey, gameName) {
+        currentEditingGameKey = gameKey;
+        const editor = document.getElementById('profile-editor');
+        const checkboxesDiv = document.getElementById('app-checkboxes');
+        checkboxesDiv.innerHTML = '';
+        
+        document.getElementById('editor-title').textContent = `Nastavení profilu: ${gameName}`;
+        
+        const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
+        
+        // Generování Checkboxů utilit
+        UTILITY_APPS.forEach(appKey => {
+            const div = document.createElement('div');
+            div.classList.add('checkbox-item');
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = `check_${appKey}`;
+            input.name = appKey;
+            
+            input.checked = savedProfile[appKey] || false; 
+            
+            const label = document.createElement('label');
+            label.htmlFor = `check_${appKey}`;
+            label.textContent = appKey.charAt(0).toUpperCase() + appKey.slice(1);
+            
+            div.appendChild(input);
+            div.appendChild(label);
+            checkboxesDiv.appendChild(div);
+        });
+        
+        // Načtení stavu pro automatické spuštění
+        const autoLaunchCheckbox = document.getElementById('launch-game-automatically');
+        // Nastavíme jako default TRUE, pokud volba neexistuje
+        autoLaunchCheckbox.checked = (savedProfile.launchAutomatically !== false); 
+        
+        editor.style.display = 'block';
+        document.getElementById('game-list').style.display = 'none';
+    }
+
+    function hideProfileEditor() {
+        document.getElementById('profile-editor').style.display = 'none';
+        document.getElementById('game-list').style.display = 'flex';
+    }
+    
+    function saveProfileSettings() {
+        const profileSettings = {};
+        
+        UTILITY_APPS.forEach(appKey => {
+            const checkbox = document.getElementById(`check_${appKey}`);
+            if (checkbox) {
+                profileSettings[appKey] = checkbox.checked;
             }
         });
-        function showTab(tabId) {
-            // Skryjeme editor profilu, pokud je otevřený
-            document.getElementById('profile-editor').style.display = 'none';
-            document.getElementById('game-list').style.display = 'flex';
-            
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        // --- ULOŽENÍ/NAČÍTÁNÍ (Lokální Úložiště) ---
-
-        function loadSettings() {
-            // Načtení UTILITY cest
-            const savedAppPaths = localStorage.getItem('simLauncherAppPaths');
-            if (savedAppPaths) appPaths = JSON.parse(savedAppPaths);
-            
-            // Načtení CEST KE HRÁM
-            const savedGamePaths = localStorage.getItem('simLauncherGamePaths');
-            if (savedGamePaths) gamePaths = JSON.parse(savedGamePaths);
-            
-            // Doplnění hodnot do input polí
-            for (const id in PATH_MAPPINGS) {
-                const key = PATH_MAPPINGS[id];
-                // Zkontrolujeme, zda je klíč v appPaths nebo gamePaths
-                const pathValue = appPaths[key] || gamePaths[key] || '';
-                if(document.getElementById(id)) { // Přidána kontrola existence elementu
-                    document.getElementById(id).value = pathValue;
-                }
-            }
-        }
-
-        function saveSettings() {
-            // Uložíme všechny hodnoty z input polí do appPaths a gamePaths
-            for (const id in PATH_MAPPINGS) {
-                const key = PATH_MAPPINGS[id];
-                const value = document.getElementById(id).value;
-                
-                if (UTILITY_APPS.includes(key)) {
-                    appPaths[key] = value;
-                } else {
-                    gamePaths[key] = value;
-                }
-            }
-
-            localStorage.setItem('simLauncherAppPaths', JSON.stringify(appPaths));
-            localStorage.setItem('simLauncherGamePaths', JSON.stringify(gamePaths));
-
-            document.getElementById('settings-status').textContent = 'Globální cesty uloženy!';
-            document.getElementById('settings-status').style.color = 'lightgreen';
-            
-            // Znovu vygenerujeme tlačítka
-            generateGameButtons();
-        }
-
-        // --- GENERÁTOR UI ---
-
-        function generateGameButtons() {
-            const listDiv = document.getElementById('game-list');
-            listDiv.innerHTML = ''; 
-            
-            for (const name in GAME_LIST) {
-                const key = GAME_LIST[name];
-                
-                const container = document.createElement('div');
-                container.classList.add('game-profile');
-
-                // 1. Tlačítko pro spuštění hry
-                const launchBtn = document.createElement('button');
-                launchBtn.textContent = name;
-                launchBtn.onclick = () => launchGameProfile(key);
-                
-                // 2. Tlačítko pro nastavení (ozubené kolečko)
-                const settingsBtn = document.createElement('button');
-                settingsBtn.textContent = '⚙️'; 
-                settingsBtn.classList.add('settings-icon');
-                settingsBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    showProfileEditor(key, name);
-                }
-
-                container.appendChild(launchBtn);
-                container.appendChild(settingsBtn);
-                listDiv.appendChild(container);
-            }
-        }
         
-        // --- EDITOR PROFILU ---
-
-        function showProfileEditor(gameKey, gameName) {
-            currentEditingGameKey = gameKey;
-            const editor = document.getElementById('profile-editor');
-            const checkboxesDiv = document.getElementById('app-checkboxes');
-            checkboxesDiv.innerHTML = '';
-            
-            document.getElementById('editor-title').textContent = `Nastavení profilu: ${gameName}`;
-            
-            // Klíč pro lokální úložiště: např. 'profile_acc'
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
-            
-            // Generování Checkboxů utilit
-            UTILITY_APPS.forEach(appKey => {
-                const div = document.createElement('div');
-                div.classList.add('checkbox-item');
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.id = `check_${appKey}`;
-                input.name = appKey;
-                
-                // Načte uloženou volbu (checked: true/false)
-                input.checked = savedProfile[appKey] || false; 
-                
-                const label = document.createElement('label');
-                label.htmlFor = `check_${appKey}`;
-                label.textContent = appKey.charAt(0).toUpperCase() + appKey.slice(1);
-                
-                div.appendChild(input);
-                div.appendChild(label);
-                checkboxesDiv.appendChild(div);
-            });
-            
-            // Zobrazí editor a skryje tlačítka her
-            editor.style.display = 'block';
-            document.getElementById('game-list').style.display = 'none';
-        }
-
-        function hideProfileEditor() {
-            document.getElementById('profile-editor').style.display = 'none';
-            document.getElementById('game-list').style.display = 'flex';
-        }
+        // ULOŽENÍ STAVU AUTOMATICKÉHO SPUŠTĚNÍ
+        profileSettings.launchAutomatically = document.getElementById('launch-game-automatically').checked;
         
-        function saveProfileSettings() {
-            const profileSettings = {};
-            
-            UTILITY_APPS.forEach(appKey => {
-                const checkbox = document.getElementById(`check_${appKey}`);
-                if (checkbox) {
-                    profileSettings[appKey] = checkbox.checked;
-                }
-            });
-            
-            localStorage.setItem(`profile_${currentEditingGameKey}`, JSON.stringify(profileSettings));
-            
-            document.getElementById('profile-status').textContent = `Nastavení profilu uloženo pro ${currentEditingGameKey.toUpperCase()}!`;
-            document.getElementById('profile-status').style.color = 'lightgreen';
-            
-            setTimeout(hideProfileEditor, 1000); 
-        }
+        localStorage.setItem(`profile_${currentEditingGameKey}`, JSON.stringify(profileSettings));
+        
+        document.getElementById('profile-status').textContent = `Nastavení profilu uloženo pro ${currentEditingGameKey.toUpperCase()}!`;
+        document.getElementById('profile-status').style.color = 'lightgreen';
+        
+        setTimeout(hideProfileEditor, 1000); 
+    }
 
-        // --- SPOUŠTĚNÍ HRY A UTILIT (LAUNCH) ---
+    // --- SPOUŠTĚNÍ HRY A UTILIT (LAUNCH) ---
 
-        function launchGameProfile(gameKey) {
-            const appsToLaunch = [];
-            
-            // 1. Načtení uložených preferencí pro utility
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
-            
-            // 2. Přidání utility aplikací
-            UTILITY_APPS.forEach(appKey => {
-                if (savedProfile[appKey] && appPaths[appKey]) { 
-                    appsToLaunch.push(appPaths[appKey]);
-                }
-            });
-            
-            // 3. Přidání hry (vždy jako poslední)
+    function launchGameProfile(gameKey) {
+        const appsToLaunch = [];
+        
+        const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
+        
+        // Zjištění, zda se má hra spustit automaticky (default je TRUE, pokud nebylo uloženo)
+        const launchGame = (savedProfile.launchAutomatically !== false); 
+        
+        // 2. Přidání utility aplikací
+        UTILITY_APPS.forEach(appKey => {
+            if (savedProfile[appKey] && appPaths[appKey]) { 
+                appsToLaunch.push(appPaths[appKey]);
+            }
+        });
+        
+        // 3. PŘIDÁNÍ HRY (podmíněně)
+        if (launchGame) {
             const gamePath = gamePaths[gameKey];
             if (gamePath) {
                 appsToLaunch.push(gamePath);
             } else {
+                // CHYBA: Chybí cesta, i když je volba auto-spuštění
                 alert(`CHYBA: Cesta k hře ${gameKey.toUpperCase()} nebyla v globálním nastavení zadána!`);
                 return;
             }
+        }
 
-            // 4. Spuštění přes main.js
+        // 4. Spuštění přes main.js
+        if (appsToLaunch.length > 0) {
             document.getElementById('status').textContent = `Spouštím: ${gameKey.toUpperCase()} s ${appsToLaunch.length} aplikacemi...`;
             ipcRenderer.send('launch-profile', appsToLaunch);
+        } else {
+            document.getElementById('status').textContent = `CHYBA: Nebyly vybrány žádné aplikace ke spuštění!`;
+            return;
         }
-        
-        // --- VSTUPNÍ BOD ---
 
-        window.onload = () => {
-            loadSettings(); 
-            generateGameButtons(); 
-            showTab('launcher'); 
-            
-            // Skrytí editoru při startu
-            document.getElementById('profile-editor').style.display = 'none'; 
-        };
+        // 5. ZPRÁVA PRO MANUÁLNÍ REŽIM
+        if (!launchGame) {
+            // Pokud nebudeme spouštět hru, zobrazíme zprávu, která vyzve uživatele
+            document.getElementById('status').textContent += `\nSpusťte hru ${gameKey.toUpperCase()} manuálně (pro volbu VR/Monitor)!`;
+        }
+    }
+    
+    // --- IPC PRO BROWSE PATH ---
+    function browsePath(inputId) {
+        if (!document.getElementById(inputId)) return; 
+        ipcRenderer.send('browse-path', inputId); 
+    }
+    
+    ipcRenderer.on('browse-path-result', (event, result) => {
+        if (result.filePath) {
+            document.getElementById(result.inputId).value = result.filePath;
+            saveSettings(); 
+        }
+    });
+
+    // --- VSTUPNÍ BOD ---
+
+    window.onload = () => {
+        loadSettings(); 
+        generateGameButtons(); 
+        showTab('launcher'); 
+        
+        document.getElementById('profile-editor').style.display = 'none'; 
+    };
     </script>
 </body>
 </html>

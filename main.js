@@ -7,6 +7,7 @@ function createWindow() {
         width: 800,
         height: 600,
         resizable: false,
+        icon: path.join(__dirname, 'SimLauncher.ico'),
         webPreferences: {
             // preload: path.join(__dirname, 'preload.js'), // PRELOAD není potřeba, pro zjednodušení vynecháme
             contextIsolation: false, 
