@@ -2,38 +2,38 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Sim Racing Launcher</title>
+    <title>SimLauncher</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     
     <div id="tabs">
-        <button onclick="showTab('launcher')">LAUNCHER</button>
-        <button onclick="showTab('settings')">NASTAVENÍ</button>
+        <button onclick="showTab('launcher')">Launcher</button>
+        <button onclick="showTab('settings')">Settings</button>
     </div>
 
     <div id="launcher" class="tab-content active">
-        <h1>Sim Racing Profily</h1>
+        <h1>Games</h1>
         <div id="profile-list">
             </div>
         <div id="status"></div>
     </div>
 
     <div id="settings" class="tab-content">
-        <h2>Nastavení Cest k Aplikacím</h2>
+        <h2>App paths</h2>
         <div class="setting-item">
             <label for="simhub-path">SimHub.exe:</label>
             <input type="text" id="simhub-path" placeholder="C:\Program Files (x86)\SimHub\SimHub.exe">
-            <button onclick="browsePath('simhub-path')">Procházet</button>
+            <button onclick="browsePath('simhub-path')">Locate</button>
         </div>
         
         <div class="setting-item">
             <label for="crewchief-path">CrewChiefV4.exe:</label>
             <input type="text" id="crewchief-path" placeholder="C:\CrewChiefV4\CrewChiefV4.exe">
-            <button onclick="browsePath('crewchief-path')">Procházet</button>
+            <button onclick="browsePath('crewchief-path')">Locate</button>
         </div>
         
-        <button id="save-settings-btn" onclick="saveSettings()">Uložit Nastavení</button>
+        <button id="save-settings-btn" onclick="saveSettings()">Save</button>
         <div id="settings-status"></div>
     </div>
 
@@ -48,8 +48,15 @@
     let appPaths = {
         simhub: "C:\\Program Files (x86)\\SimHub\\SimHub.exe",
         crewchief: "C:\\CrewChiefV4\\CrewChiefV4.exe",
+        tradingpaints: "",
+        garage61: "",
+        customapp1: "",
     };
-    
+    let gamePaths = {
+    acc: "",
+    iracing: "",
+    ams2: "" 
+    }
     // --- OPRAVA 2: FUNKCE PRO PŘEPÍNÁNÍ KARET ---
     function showTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => {
@@ -91,16 +98,21 @@
     function updateProfiles() {
         // Tuto funkci je potřeba spouštět po načtení/uložení cest
         PROFILES = {
-            "Assetto Corsa Competizione (ACC)": [
+            "ACC": [
                 appPaths.simhub,
                 appPaths.crewchief,
                 "D:\\SteamLibrary\\steamapps\\common\\Assetto Corsa Competizione\\AC2Server.exe" 
             ],
             // Přidejte zde další profily
-            "iRacing + CrewChief": [
+            "iRacing": [
                 appPaths.simhub,
                 appPaths.crewchief,
                 "C:\\Users\\Public\\iRacing\\iRacingUI.exe"
+            ],
+            "AMS2": [
+                appPaths.simhub,
+                appPaths.crewchief,
+                "D:\SteamLibrary\steamapps\common\Automobilista 2\AMS2.exe"
             ]
         };
     }
