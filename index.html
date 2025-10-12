@@ -34,7 +34,7 @@
     </div>
 
     <div id="settings" class="tab-content">
-        <h2>Global Application and Game Paths</h2>
+        <h1>Settings</h1>
         
         <div id="global-settings-form">
             </div>
@@ -92,7 +92,7 @@
     // --- GENERATION OF FORMS (FIXED) ---
     function generateSettingsForm() {
         const formDiv = document.getElementById('global-settings-form');
-        let html = '<h3>Utilities</h3>';
+        let html = '<h3>Apps</h3>';
         
         // Generate Utility fields
         UTILITY_LIST_CONFIG.forEach(item => {
@@ -187,6 +187,7 @@
             // 1. Launch button
             const launchBtn = document.createElement('button');
             launchBtn.textContent = `Launch ${game.name}`;
+            launchBtn.classList.add('launch-icon');
             launchBtn.onclick = () => launchGameProfile(key);
             
             // 2. Settings button (⚙️)
