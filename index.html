@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Sim Racing Launcher</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div id="tabs">
+        <button onclick="showTab('launcher')">LAUNCHER</button>
+        <button onclick="showTab('settings')">NASTAVENÍ</button>
+    </div>
+
+    <div id="launcher" class="tab-content active">
+        <h1>Sim Racing Profily</h1>
+        <div id="profile-list">
+            </div>
+        <div id="status"></div>
+    </div>
+
+    <div id="settings" class="tab-content">
+        <h2>Nastavení Cest k Aplikacím</h2>
+        <div class="setting-item">
+            <label for="simhub-path">SimHub.exe:</label>
+            <input type="text" id="simhub-path" placeholder="C:\Program Files (x86)\SimHub\SimHub.exe">
+            <button onclick="browsePath('simhub-path')">Procházet</button>
+        </div>
+        
+        <div class="setting-item">
+            <label for="crewchief-path">CrewChiefV4.exe:</label>
+            <input type="text" id="crewchief-path" placeholder="C:\CrewChiefV4\CrewChiefV4.exe">
+            <button onclick="browsePath('crewchief-path')">Procházet</button>
+        </div>
+        
+        <button id="save-settings-btn" onclick="saveSettings()">Uložit Nastavení</button>
+        <div id="settings-status"></div>
+    </div>
+
+    <script>
+    const { ipcRenderer } = require('electron');
+    // const fs = require('fs'); // FS není potřeba pro práci s localStorage
+    
+    // --- OPRAVA 1: GLOBÁLNÍ DEFINICE PROFILES ---
+    // Musí být definovány na top-level, aby je updateProfiles mohlo upravit
+    let PROFILES = {};
+
+    let appPaths = {
+        simhub: "C:\\Program Files (x86)\\SimHub\\SimHub.exe",
+        crewchief: "C:\\CrewChiefV4\\CrewChiefV4.exe",
+    };
+    
+    // --- OPRAVA 2: FUNKCE PRO PŘEPÍNÁNÍ KARET ---
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // Funkce pro načtení nastavení při startu
+    function loadSettings() {
+        const savedPaths = localStorage.getItem('simLauncherAppPaths');
+        if (savedPaths) {
+            appPaths = JSON.parse(savedPaths);
+        }
+        
+        // Nastavíme pole v HTML na uložené hodnoty
+        document.getElementById('simhub-path').value = appPaths.simhub;
+        document.getElementById('crewchief-path').value = appPaths.crewchief;
+        
+        updateProfiles();
+    }
+
+    // Funkce pro uložení nastavení
+    function saveSettings() {
+        appPaths.simhub = document.getElementById('simhub-path').value;
+        appPaths.crewchief = document.getElementById('crewchief-path').value;
+        
+        localStorage.setItem('simLauncherAppPaths', JSON.stringify(appPaths));
+        
+        updateProfiles();
+        document.getElementById('settings-status').textContent = 'Nastavení uloženo a profily aktualizovány!';
+        document.getElementById('settings-status').style.color = 'lightgreen';
+        
+        // Znovu vygenerujeme tlačítka pro případ, že bychom přidali dynamickou tvorbu profilů
+        generateProfileButtons();
+    }
+
+    // --- OPRAVA 3: AKTUALIZACE PROFILŮ A GENERÁTOR TLAČÍTEK ---
+    function updateProfiles() {
+        // Tuto funkci je potřeba spouštět po načtení/uložení cest
+        PROFILES = {
+            "Assetto Corsa Competizione (ACC)": [
+                appPaths.simhub,
+                appPaths.crewchief,
+                "D:\\SteamLibrary\\steamapps\\common\\Assetto Corsa Competizione\\AC2Server.exe" 
+            ],
+            // Přidejte zde další profily
+            "iRacing + CrewChief": [
+                appPaths.simhub,
+                appPaths.crewchief,
+                "C:\\Users\\Public\\iRacing\\iRacingUI.exe"
+            ]
+        };
+    }
+    
+    function generateProfileButtons() {
+        const listDiv = document.getElementById('profile-list');
+        listDiv.innerHTML = ''; // Vyčistíme seznam
+        
+        for (const name in PROFILES) {
+            const button = document.createElement('button');
+            button.textContent = name;
+            button.onclick = () => launchProfile(name);
+            listDiv.appendChild(button);
+        }
+    }
+
+
+    // Funkce pro spuštění profilu (používá ipcRenderer.send)
+    function launchProfile(profileName) {
+        const apps = PROFILES[profileName];
+        if (apps) {
+            document.getElementById('status').textContent = `Spouštím profil: ${profileName}...`;
+            ipcRenderer.send('launch-profile', apps);
+        }
+    }
+
+    // --- OPRAVA 4: IPC PRO BROWSE PATH ---
+    function browsePath(inputId) {
+        // Posíláme požadavek A ID POLE, které chceme aktualizovat
+        ipcRenderer.send('browse-path', inputId); 
+    }
+    
+    // Čeká na výsledek z main.js a aktualizuje správné pole
+    ipcRenderer.on('browse-path-result', (event, result) => {
+        if (result.filePath) {
+            // Výsledek obsahuje objekt {filePath: 'cesta', inputId: 'id_pole'}
+            document.getElementById(result.inputId).value = result.filePath;
+        }
+    });
+
+
+    // Vstupní bod
+    window.onload = () => {
+        loadSettings(); 
+        generateProfileButtons(); // Generujeme tlačítka až po načtení cest
+        showTab('launcher'); 
+    };
+
+    // ... Zbytek kódu ...
+</script>
+</body>
+</html>
