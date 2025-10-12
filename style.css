@@ -14,7 +14,9 @@
 /* --- END TAB FUNCTIONALITY --- */
 
 /* Base styles like #game-list, .game-profile etc. follow below */
-
+html {
+    background-color: #292929;
+}
 /* Ensure Profile Editor is hidden by default */
 .editor-panel {
     display: none; /* Standardly hidden */
@@ -27,9 +29,10 @@
 
 /* New styles for Editor and game buttons */
 #game-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    /*display: flex;*/
+    /*flex-wrap: wrap;*/
+    display: grid!important;
+    justify-content: left;
     gap: 15px;
     margin-top: 20px;
 }
@@ -103,4 +106,23 @@
 }
 .checkbox-item label {
     margin-left: 10px;
+}
+
+/* tab switcher*/
+#tabs {
+    justify-content: center;
+    display: flex;
+}
+
+button {
+    color: white;
+    border-color: grey;
+    background: transparent;
+    border-radius: 8px;
+    padding: 18px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+body {
+    color: white;
 }
