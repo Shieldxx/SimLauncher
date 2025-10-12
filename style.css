@@ -1,23 +1,23 @@
-/* --- ZAJIŠTĚNÍ FUNKČNOSTI ZÁLOŽEK --- */
+/* --- TAB FUNCTIONALITY ASSURANCE --- */
 .tab-content {
-    display: none; /* Skryje všechny záložky */
+    display: none; /* Hides all tabs */
     padding: 20px 0;
 }
 .tab-content.active {
-    display: block; /* Zobrazí pouze aktivní záložku */
+    display: block; /* Shows only the active tab */
     
-    /* V rámci záložky launcher je potřeba zajistit zobrazení herních tlačítek */
+    /* Ensure game buttons are displayed within the active launcher tab */
     #game-list {
-        display: flex; /* Zajistí, že se herní tlačítka zobrazí, pokud jsou aktivní */
+        display: flex; /* Ensures game buttons are visible if active */
     }
 }
-/* --- KONEC ZAJIŠTĚNÍ ZÁLOŽEK --- */
+/* --- END TAB FUNCTIONALITY --- */
 
-/* Původní styly jako #game-list, .game-profile atd. následují níže */
+/* Base styles like #game-list, .game-profile etc. follow below */
 
-/* Zajištění, že se Editor Profilu zobrazuje jako block */
+/* Ensure Profile Editor is hidden by default */
 .editor-panel {
-    display: none; /* Standardně skrytý */
+    display: none; /* Standardly hidden */
     background: #34495e;
     padding: 20px;
     margin-top: 30px;
@@ -25,7 +25,7 @@
     text-align: left;
 }
 
-/* Nové styly pro Editor a tlačítka her */
+/* New styles for Editor and game buttons */
 #game-list {
     display: flex;
     flex-wrap: wrap;
@@ -40,8 +40,17 @@
     gap: 5px;
 }
 
+.game-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 5px;
+    border: 1px solid #3498db;
+    padding: 2px;
+}
+
 .game-profile button:first-child {
-    /* Styl pro hlavní tlačítko hry */
+    /* Style for the main game launch button */
     min-width: 200px;
     background-color: #34495e;
     color: white;
@@ -59,9 +68,9 @@
 }
 
 .settings-icon {
-    /* Styl pro tlačítko nastavení */
+    /* Style for the settings button (gear icon) */
     background: #2c3e50;
-    color: #f1c40f !important; /* Žlutá ikonka */
+    color: #f1c40f !important; /* Yellow icon */
     border: 1px solid #f1c40f;
     padding: 10px;
     height: 100%;
@@ -76,7 +85,7 @@
     color: #2c3e50 !important;
 }
 
-/* Styl pro Editor Profilů */
+/* Style for Profile Editor */
 .editor-panel {
     background: #34495e;
     padding: 20px;
