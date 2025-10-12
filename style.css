@@ -1,41 +1,97 @@
-body {
-    font-family: Arial, sans-serif;
-    background-color: #2c3e50; /* Tmavé pozadí */
-    color: #ecf0f1; /* Světlý text */
-    text-align: center;
+/* --- ZAJIŠTĚNÍ FUNKČNOSTI ZÁLOŽEK --- */
+.tab-content {
+    display: none; /* Skryje všechny záložky */
+    padding: 20px 0;
+}
+.tab-content.active {
+    display: block; /* Zobrazí pouze aktivní záložku */
+    
+    /* V rámci záložky launcher je potřeba zajistit zobrazení herních tlačítek */
+    #game-list {
+        display: flex; /* Zajistí, že se herní tlačítka zobrazí, pokud jsou aktivní */
+    }
+}
+/* --- KONEC ZAJIŠTĚNÍ ZÁLOŽEK --- */
+
+/* Původní styly jako #game-list, .game-profile atd. následují níže */
+
+/* Zajištění, že se Editor Profilu zobrazuje jako block */
+.editor-panel {
+    display: none; /* Standardně skrytý */
+    background: #34495e;
     padding: 20px;
+    margin-top: 30px;
+    border-radius: 8px;
+    text-align: left;
 }
-h1 {
-    color: #3498db; /* Modrý nadpis */
+
+/* Nové styly pro Editor a tlačítka her */
+#game-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
 }
-#profile-list button {
+
+.game-profile {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.game-profile button:first-child {
+    /* Styl pro hlavní tlačítko hry */
+    min-width: 200px;
     background-color: #34495e;
     color: white;
     border: 2px solid #3498db;
     padding: 10px 20px;
-    margin: 10px;
+    margin: 0;
     cursor: pointer;
     font-size: 1.1em;
     transition: background-color 0.3s;
     border-radius: 5px;
 }
-#profile-list button:hover {
+
+.game-profile button:first-child:hover {
     background-color: #3498db;
 }
-#status {
-    margin-top: 20px;
-    font-size: 1.2em;
-    font-weight: bold;
+
+.settings-icon {
+    /* Styl pro tlačítko nastavení */
+    background: #2c3e50;
+    color: #f1c40f !important; /* Žlutá ikonka */
+    border: 1px solid #f1c40f;
+    padding: 10px;
+    height: 100%;
+    font-size: 1.1em;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
-/* Kritické CSS, které skrývá neaktivní záložky */
-.tab-content {
-    display: none; 
+
+.settings-icon:hover {
+    background: #f1c40f;
+    color: #2c3e50 !important;
+}
+
+/* Styl pro Editor Profilů */
+.editor-panel {
+    background: #34495e;
     padding: 20px;
-    border-top: 2px solid #3498db;
+    margin-top: 30px;
+    border-radius: 8px;
     text-align: left;
 }
 
-/* Zobrazí jen tu aktivní */
-.tab-content.active {
-    display: block; 
+#app-checkboxes {
+    margin: 15px 0;
+}
+
+.checkbox-item {
+    margin-bottom: 8px;
+}
+.checkbox-item label {
+    margin-left: 10px;
 }
