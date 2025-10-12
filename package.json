@@ -1,15 +1,17 @@
 {
   "name": "simlauncher",
-  "version": "1.0.0",
+  "version": "0.0.4",
   "description": "",
   "main": "main.js",
   "scripts": {
-   "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --windows"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^38.2.2"
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12"
   }
 }
