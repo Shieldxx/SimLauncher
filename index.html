@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <base href="./">
     <title>SimLauncher</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -23,7 +24,7 @@
             <p>Select which applications to launch with this game:</p>
             <div id="app-checkboxes"></div>
             
-            <div class="setting-item">
+            <div class="checkbox-item">
                 <input type="checkbox" id="launch-game-automatically">
                 <label for="launch-game-automatically">Launch game automatically after utilities (disable for VR/Monitor choice)</label>
             </div>
@@ -176,19 +177,21 @@
 
             const container = document.createElement('div');
             container.classList.add('game-profile');
+            container.dataset.gameKey = key;
             
             // GAME ICON
             const iconImg = document.createElement('img');
-            iconImg.src = `./assets/${key}.png`; 
+            iconImg.src = `assets/${key}.png`;
             iconImg.alt = game.name;
             iconImg.classList.add('game-icon'); 
+            iconImg.onerror = () => console.log('Image not found:', key);
             container.appendChild(iconImg);
 
             // 1. Launch button
             const launchBtn = document.createElement('button');
             launchBtn.textContent = `Launch ${game.name}`;
             launchBtn.classList.add('launch-icon');
-            launchBtn.onclick = () => launchGameProfile(key);
+            launchBtn.onclick = () => launchGameProfile(key, game.name);
             
             // 2. Settings button (⚙️)
             const settingsBtn = document.createElement('button');
@@ -205,7 +208,7 @@
         });
     }
 
-    // --- PROFILE EDITOR (FIXED FILTERING LOGIC) ---
+    // --- PROFILE EDITOR ---
 
     function showProfileEditor(gameKey, gameName) {
         currentEditingGameKey = gameKey;
@@ -221,7 +224,7 @@
         UTILITY_LIST_CONFIG.forEach(item => {
             const appKey = item.key;
             
-            // CRITICAL FILTER: ONLY DISPLAY UTILITIES WITH A SET PATH
+            // ONLY DISPLAY UTILITIES WITH A SET PATH
             if (!appPaths[appKey] || appPaths[appKey].trim() === "") {
                 return; // Skip utility if path is empty
             }
@@ -251,8 +254,6 @@
         editor.style.display = 'block';
         document.getElementById('game-list').style.display = 'none';
     }
-    
-    // --- REMAINDER OF FUNCTIONS ---
 
     function hideProfileEditor() {
         document.getElementById('profile-editor').style.display = 'none';
@@ -280,47 +281,69 @@
         setTimeout(hideProfileEditor, 1000); 
     }
 
-    function launchGameProfile(gameKey) {
-        const appsToLaunch = [];
+function launchGameProfile(gameKey) {
+    const appsToLaunch = [];
+    const statusDiv = document.getElementById('status');
+    
+    const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
+    const launchGame = (savedProfile.launchAutomatically !== false); 
+    
+    // Zbytek logiky sestavování appsToLaunch
+    UTILITY_LIST_CONFIG.forEach(item => {
+        const appKey = item.key;
+        if (savedProfile[appKey] && appPaths[appKey] && appPaths[appKey].trim() !== "") { 
+            appsToLaunch.push(appPaths[appKey]);
+        }
+    });
+    
+    // 3. ADD GAME (Pouze pro auto-start)
+    if (launchGame) {
+        const gamePath = gamePaths[gameKey];
+        if (gamePath && gamePath.trim() !== "") {
+            appsToLaunch.push(gamePath);
+        } else {
+            alert(`ERROR: Path to game ${gameKey.toUpperCase()} was not set in global settings!`);
+            return;
+        }
+    }
+
+    // 4. Launch via main.js
+    if (appsToLaunch.length > 0) {
+        const gameConfig = GAME_LIST_CONFIG.find(g => g.key === gameKey);
+        const gameName = gameConfig ? gameConfig.name : gameKey.toUpperCase();
         
-        const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
-        
-        const launchGame = (savedProfile.launchAutomatically !== false); 
-        
-        // 2. Add utility applications (Filters to include only apps with paths)
-        UTILITY_LIST_CONFIG.forEach(item => {
-            const appKey = item.key;
-            // Check if selected AND path exists
-            if (savedProfile[appKey] && appPaths[appKey] && appPaths[appKey].trim() !== "") { 
-                appsToLaunch.push(appPaths[appKey]);
+        /*statusDiv.textContent = `Launching: ${gameName} with ${appsToLaunch.length} applications...`;*/
+        ipcRenderer.send('launch-profile', appsToLaunch);
+
+        ipcRenderer.once('launch-result', (event, result) => {
+            if (result.success) {
+                
+                if (launchGame) {
+                    // Auto start
+                    statusDiv.textContent = `✅ Starting ${gameName} with ${appsToLaunch.length} applications.`;
+                    setTimeout(() => {
+                        statusDiv.textContent = '';
+                    }, 5000); 
+                    
+                } else {
+                    // Manual start
+                    statusDiv.textContent = `✅ Starting ${appsToLaunch.length} applications. Launch the game ${gameName} manually!`;
+                    setTimeout(() => {
+                        statusDiv.textContent = '';
+                    }, 15000); 
+                }
+
+            } else {
+                // CHYBA
+                statusDiv.textContent = `❌ ERROR: ${result.error}`;
             }
         });
         
-        // 3. ADD GAME (conditionally, always last)
-        if (launchGame) {
-            const gamePath = gamePaths[gameKey];
-            if (gamePath && gamePath.trim() !== "") {
-                appsToLaunch.push(gamePath);
-            } else {
-                alert(`ERROR: Path to game ${gameKey.toUpperCase()} was not set in global settings!`);
-                return;
-            }
-        }
-
-        // 4. Launch via main.js
-        if (appsToLaunch.length > 0) {
-            document.getElementById('status').textContent = 'Launching: ' + gameKey.toUpperCase() + ' with ' + appsToLaunch.length + ' applications...';
-            ipcRenderer.send('launch-profile', appsToLaunch);
-        } else {
-            document.getElementById('status').textContent = 'ERROR: No applications were selected for launch!';
-            return;
-        }
-
-        // 5. MESSAGE FOR MANUAL MODE
-        if (!launchGame) {
-            document.getElementById('status').textContent += '\nLaunch the game ' + gameKey.toUpperCase() + ' manually (for VR/Monitor choice)!';
-        }
+    } else {
+        statusDiv.textContent = `ERROR: No applications were selected for launch!`;
+        return;
     }
+}
     
     function browsePath(inputId) {
         if (!document.getElementById(inputId)) return; 

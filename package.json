@@ -1,7 +1,7 @@
 {
   "name": "simlauncher",
   "version": "0.0.4",
-  "description": "",
+  "description": "SimLauncher - Multi app launcher for simracing",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -13,5 +13,27 @@
   "devDependencies": {
     "electron": "^38.2.2",
     "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.simlauncher.app",
+    "productName": "SimLauncher",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "style.css",
+      "package.json",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "SimLauncher.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }

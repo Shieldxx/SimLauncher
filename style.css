@@ -71,10 +71,10 @@ html {
     background-color: #3498db;
 }
 .setting-item {
-    display: flex
-;
+    display: flex;
     justify-content: space-between;
     align-items: stretch;
+    width: 484px;
 }
 .settings-icon {
     /* Style for the settings button (gear icon) */
