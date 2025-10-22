@@ -7,7 +7,7 @@ function createWindow() {
         width: 800,
         height: 600,
         resizable: true,
-        /*autoHideMenuBar: true,*/
+        autoHideMenuBar: true,
         icon: path.join(__dirname, 'SimLauncher.ico'),
         webPreferences: {
             contextIsolation: false, 
