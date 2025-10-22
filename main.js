@@ -6,7 +6,8 @@ function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
-        resizable: false,
+        resizable: true,
+        /*autoHideMenuBar: true,*/
         icon: path.join(__dirname, 'SimLauncher.ico'),
         webPreferences: {
             contextIsolation: false, 

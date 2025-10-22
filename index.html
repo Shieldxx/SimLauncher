@@ -14,8 +14,6 @@
     </div>
 
     <div id="launcher" class="tab-content active">
-        <h1>Launcher</h1>
-        
         <div id="game-list"></div>
         <div id="status"></div>
 
@@ -35,8 +33,6 @@
     </div>
 
     <div id="settings" class="tab-content">
-        <h1>Settings</h1>
-        
         <div id="global-settings-form">
             </div>
 
@@ -81,16 +77,25 @@
     // --- BASIC UI FUNCTIONS ---
 
     function showTab(tabId) {
-        document.getElementById('profile-editor').style.display = 'none';
-        document.getElementById('game-list').style.display = 'flex';
+        const editor = document.getElementById('profile-editor');
+        const launcher = document.getElementById('launcher');
+        if (editor.parentNode !== launcher) {
+            launcher.appendChild(editor);
+        }
+        editor.style.display = 'none';
+        
+        document.getElementById('game-list').style.display = 'grid';
         
         document.querySelectorAll('.tab-content').forEach(tab => {
             tab.classList.remove('active');
         });
         document.getElementById(tabId).classList.add('active');
+        
+        if (tabId === 'launcher') {
+            generateGameButtons();
+        }
     }
 
-    // --- GENERATION OF FORMS (FIXED) ---
     function generateSettingsForm() {
         const formDiv = document.getElementById('global-settings-form');
         let html = '<h3>Apps</h3>';
@@ -158,7 +163,10 @@
         document.getElementById('settings-status').textContent = 'Global paths saved!';
         document.getElementById('settings-status').style.color = 'lightgreen';
         
-        generateGameButtons(); // Refresh the game list with new filtering
+        // Refresh game buttons after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            generateGameButtons();
+        }, 50);
     }
 
     // --- BUTTON GENERATOR ---
@@ -250,14 +258,19 @@
         // Load state for automatic launch
         const autoLaunchCheckbox = document.getElementById('launch-game-automatically');
         autoLaunchCheckbox.checked = (savedProfile.launchAutomatically !== false); 
-        
+        const gameRow = document.querySelector(`.game-profile[data-game-key="${gameKey}"]`);
+    
+    if (gameRow) {
+        // Vloží editor (div#profile-editor) přímo za řádek s hrou
+        gameRow.parentNode.insertBefore(editor, gameRow.nextSibling);
+    }
         editor.style.display = 'block';
-        document.getElementById('game-list').style.display = 'none';
     }
 
     function hideProfileEditor() {
         document.getElementById('profile-editor').style.display = 'none';
-        document.getElementById('game-list').style.display = 'flex';
+        currentEditingGameKey = null;
+        /*document.getElementById('game-list').style.display = 'grid';*/
     }
     
     function saveProfileSettings() {
@@ -278,8 +291,10 @@
         document.getElementById('profile-status').textContent = 'Profile settings saved for ' + currentEditingGameKey.toUpperCase() + '!';
         document.getElementById('profile-status').style.color = 'lightgreen';
         
-        setTimeout(hideProfileEditor, 1000); 
-    }
+        setTimeout(() => {
+    document.getElementById('profile-status').textContent = '';
+}, 1000);
+}
 
 function launchGameProfile(gameKey) {
     const appsToLaunch = [];

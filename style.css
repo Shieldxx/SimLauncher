@@ -1,39 +1,29 @@
-/* --- TAB FUNCTIONALITY ASSURANCE --- */
 .tab-content {
-    display: none; /* Hides all tabs */
+    display: none;
     padding: 20px 0;
 }
 .tab-content.active {
-    display: block; /* Shows only the active tab */
+    display: grid;
+    justify-content: center;
     margin: 8px;
-    
-    /* Ensure game buttons are displayed within the active launcher tab */
-    #game-list {
-        display: flex; /* Ensures game buttons are visible if active */
-    }
 }
-/* --- END TAB FUNCTIONALITY --- */
-
-/* Base styles like #game-list, .game-profile etc. follow below */
 html {
     background-color: #292929;
+    font-family: sans-serif;
 }
-/* Ensure Profile Editor is hidden by default */
+
 .editor-panel {
-    display: none; /* Standardly hidden */
+    display: none;
     background: #34495e;
     padding: 20px;
-    margin-top: 30px;
     border-radius: 8px;
     text-align: left;
 }
 
-/* New styles for Editor and game buttons */
 #game-list {
-    /*display: flex;*/
-    /*flex-wrap: wrap;*/
-    display: grid!important;
+    display: grid;
     justify-content: center;
+    justify-items: center;
     gap: 15px;
     margin-top: 20px;
 }
@@ -48,13 +38,12 @@ html {
     width: 48px;
     height: 48px;
     object-fit: contain;
-    border-radius: 5px;
+    border-radius: 8px;
     border: 1px solid #3498db;
     padding: 2px;
 }
 
 .game-profile button:first-child {
-    /* Style for the main game launch button */
     min-width: 200px;
     background-color: #34495e;
     color: white;
@@ -64,7 +53,7 @@ html {
     cursor: pointer;
     font-size: 1.1em;
     transition: background-color 0.3s;
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .game-profile button:first-child:hover {
@@ -77,15 +66,13 @@ html {
     width: 484px;
 }
 .settings-icon {
-    /* Style for the settings button (gear icon) */
     background: #2c3e50;
-    color: #f1c40f !important; /* Yellow icon */
     border: 1px solid #f1c40f;
     padding: 10px;
     height: 54px;
     width: 54px;
     font-size: 1.1em;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
@@ -94,12 +81,31 @@ html {
     background: #f1c40f;
     color: #2c3e50 !important;
 }
-
-/* Style for Profile Editor */
+button {
+    color: white;
+    border: 1px solid #f1c40f;
+    background: transparent;
+    border-radius: 8px;
+    padding: 18px;
+    background: #ffffff14;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+button:hover {
+    background: #f1c40f !important;
+    color:white !important;
+}
+button.launch-icon {
+    width: 350px;
+    background: #ffffff14;
+}
+button#save-settings-btn {
+    margin-top: 15px;
+}
 .editor-panel {
     background: #34495e;
     padding: 20px;
-    margin-top: 30px;
+    margin-top: 0px;
     border-radius: 8px;
     text-align: left;
 }
@@ -115,27 +121,12 @@ html {
     margin-left: 10px;
 }
 
-/* tab switcher*/
 #tabs {
     justify-content: center;
     display: flex;
     background-color: #00000026;
     padding: 10px;
-}
-
-button {
-    color: white;
-    border-color: grey;
-    background: transparent;
-    border-radius: 8px;
-    padding: 18px;
-    margin-left: 4px;
-    margin-right: 4px;
-    background: #ffffff14;
-}
-button.launch-icon {
-    width: 350px;
-    background: #ffffff14;
+    gap: 15px;
 }
 body {
     color: white;
@@ -153,6 +144,7 @@ h3 {
 div#global-settings-form {
     justify-content: center;
     display: grid;
+    gap: 15px;
 }
 label {
     align-content: center;
