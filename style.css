@@ -316,3 +316,10 @@ input[type="text"]:focus {
     border-color: var(--accent);
     box-shadow: 0 0 12px var(--accent);
 }
+
+.launch-icon-symbol {
+  color: #48c774;          /* nice green */
+  font-weight: bold;
+  margin-right: 8px;
+  font-size: 1.1em;        /* slightly bigger */
+}

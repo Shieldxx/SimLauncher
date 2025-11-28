@@ -79,7 +79,7 @@ const ui = {
             // Note: onclick uses global functions defined at the bottom of this file
             container.innerHTML = `
                 <img src="assets/${key}.png" alt="${game.name}" class="game-icon" onerror="this.style.display='none'">
-                <button class="launch-icon" onclick="launchGame('${key}')">Launch ${game.name}</button>
+                <button class="launch-icon" onclick="launchGame('${key}')"><span class="launch-icon-symbol">▶</span>  ${game.name}</button>
                 <button class="settings-icon" onclick="event.stopPropagation(); profiles.openEditor('${key}', '${game.name}')">⚙️</button>
             `;
             listDiv.appendChild(container);
