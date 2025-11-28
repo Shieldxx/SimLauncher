@@ -342,15 +342,17 @@ settings.initAccentPresets = () => {
 
     if (!presetSelect || !customInput) return;
 
+    // find the surrounding row so we can grey it out
+    const customRow = customInput.closest('.setting-item');
+
     // Load saved values
     const savedPreset = localStorage.getItem('simLauncherAccentPreset') || '';
     const savedCustom = localStorage.getItem('simLauncherAccentCustom') || '';
 
-    // Always restore custom input value (so it is remembered even when not active)
+    // Always restore saved custom color (so it's remembered)
     if (savedCustom) {
         customInput.value = savedCustom;
     } else {
-        // keep the color input default in sync with current CSS accent if nothing saved
         const rootAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00eaff';
         customInput.value = rootAccent;
     }
@@ -360,19 +362,18 @@ settings.initAccentPresets = () => {
         applyAccentColor(customInput.value);
         presetSelect.value = 'custom';
         customInput.disabled = false;
+        if (customRow) customRow.classList.remove('disabled');
     } else if (savedPreset) {
         applyAccentColor(savedPreset);
         presetSelect.value = savedPreset;
-        customInput.disabled = false; // keep input enabled so user can preview/change stored custom if desired
-        // We keep customInput enabled (not strictly required) — you can set to true/false as UX preference.
-        // If you prefer it disabled when not 'custom', change to `customInput.disabled = true;`
-        customInput.disabled = true;
+        customInput.disabled = true;             // disable when non-custom
+        if (customRow) customRow.classList.add('disabled');
     } else {
-        // No preset saved: use root accent and keep custom input disabled
         const rootAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00eaff';
         applyAccentColor(rootAccent);
         presetSelect.value = rootAccent;
         customInput.disabled = true;
+        if (customRow) customRow.classList.add('disabled');
     }
 
     // When user selects a preset
@@ -381,27 +382,29 @@ settings.initAccentPresets = () => {
         if (v === 'custom') {
             // enable the color control and apply its current value
             customInput.disabled = false;
+            if (customRow) customRow.classList.remove('disabled');
+
             const color = customInput.value || '#00eaff';
             applyAccentColor(color);
             localStorage.setItem('simLauncherAccentPreset', 'custom');
-            // Also persist the current custom color (no loss)
             localStorage.setItem('simLauncherAccentCustom', color);
         } else {
-            // If user chooses a preset, disable color input (change if you prefer preview enabled)
+            // disable color control and apply preset
             customInput.disabled = true;
+            if (customRow) customRow.classList.add('disabled');
+
             applyAccentColor(v);
             localStorage.setItem('simLauncherAccentPreset', v);
-            // Do NOT clear saved custom value — keep it for later
+            // keep stored custom color intact (do not clear)
         }
     });
 
-    // When user picks a custom color we ALWAYS save it, even if a non-custom preset is active.
+    // When user picks a custom color we ALWAYS save it
     customInput.addEventListener('input', (e) => {
         const color = e.target.value;
-        // Save custom regardless of current preset so it's remembered for later
         localStorage.setItem('simLauncherAccentCustom', color);
 
-        // If 'custom' preset is active, apply immediately.
+        // If 'custom' preset is active, apply immediately
         if (presetSelect.value === 'custom') {
             applyAccentColor(color);
             localStorage.setItem('simLauncherAccentPreset', 'custom');

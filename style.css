@@ -334,7 +334,7 @@ input[type="text"]:focus {
 ::-webkit-scrollbar-thumb {
     background: var(--accent);              /* the actual accent */
     border-radius: 10px;
-    border: 2px solid #1f1f1f;              /* gives nice frosted outline */
+    border: 2px solid var(--accent-glow);              /* gives nice frosted outline */
     background-clip: padding-box;
     transition: background .2s ease, opacity .2s ease;
     opacity: 0.7;
@@ -350,4 +350,15 @@ input[type="text"]:focus {
 /* optional: scrollbar corner (where both axes meet) */
 ::-webkit-scrollbar-corner {
     background: transparent;
+}
+
+/* grey-out disabled setting row and prevent pointer events */
+.setting-item.disabled {
+  opacity: 0.45;
+  pointer-events: none;   /* prevents clicks on contained controls */
+}
+
+/* visually emphasise disabled color input (optional) */
+.setting-item.disabled input[type="color"] {
+  filter: grayscale(60%);
 }
