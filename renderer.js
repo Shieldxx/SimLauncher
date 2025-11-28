@@ -19,8 +19,8 @@ const CONFIG = {
     GAMES: [
         { key: 'ac', id: 'ac-path', name: 'Assetto Corsa' },
         { key: 'acc', id: 'acc-path', name: 'Assetto Corsa Competizione' },
-        { key: 'acevo', id: 'acevo-path', name: 'Asseto Corsa Evo' },
-        { key: 'acrally', id: 'acrally-path', name: 'Asseto Corsa Rally' },
+        { key: 'acevo', id: 'acevo-path', name: 'Assetto Corsa Evo' },
+        { key: 'acrally', id: 'acrally-path', name: 'Assetto Corsa Rally' },
         { key: 'beamng', id: 'beamng-path', name: 'BeamNG' },
         { key: 'dirtrally2', id: 'dirtrally2-path', name: 'Dirt Rally 2.0' },
         { key: 'eawrc', id: 'eawrc-path', name: 'EA WRC' },
