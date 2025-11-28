@@ -22,6 +22,7 @@
     },
     "files": [
       "main.js",
+      "renderer.js",
       "index.html",
       "style.css",
       "package.json",
