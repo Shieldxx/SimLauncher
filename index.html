@@ -54,17 +54,19 @@
         { key: 'tradingpaints', id: 'tradingpaints-path', name: 'Trading Paints' },
         { key: 'garage61', id: 'garage61-path', name: 'Garage 61' },
         { key: 'secondmonitor', id: 'secondmonitor-path', name: 'Second Monitor' },
-        { key: 'customapp1', id: 'customapp1-path', name: 'Custom App 1' },
-        { key: 'customapp2', id: 'customapp2-path', name: 'Custom App 2' },
-        { key: 'customapp3', id: 'customapp3-path', name: 'Custom App 3' },
-        { key: 'customapp4', id: 'customapp4-path', name: 'Custom App 4' },
-        { key: 'customapp5', id: 'customapp5-path', name: 'Custom App 5' },
+        { key: 'customapp1', id: 'customapp1-path', name: 'Custom App 1', isCustom: true, defaultName: 'Custom App 1' },
+        { key: 'customapp2', id: 'customapp2-path', name: 'Custom App 2', isCustom: true, defaultName: 'Custom App 2' },
+        { key: 'customapp3', id: 'customapp3-path', name: 'Custom App 3', isCustom: true, defaultName: 'Custom App 3' },
+        { key: 'customapp4', id: 'customapp4-path', name: 'Custom App 4', isCustom: true, defaultName: 'Custom App 4' },
+        { key: 'customapp5', id: 'customapp5-path', name: 'Custom App 5', isCustom: true, defaultName: 'Custom App 5' },
     ];
 
     // GAMES
     const GAME_LIST_CONFIG = [
         { key: 'ac', id: 'ac-path', name: 'Assetto Corsa' },
         { key: 'acc', id: 'acc-path', name: 'Assetto Corsa Competizione' },
+        { key: 'acevo', id: 'acevo-path', name: 'Asseto Corsa Evo' },
+        { key: 'acrally', id: 'acrally-path', name: 'Asseto Corsa Rally' },
         { key: 'beamng', id: 'beamng-path', name: 'BeamNG' },
         { key: 'dirtrally2', id: 'dirtrally2-path', name: 'Dirt Rally 2.0' },
         { key: 'eawrc', id: 'eawrc-path', name: 'EA WRC' },
@@ -72,6 +74,8 @@
         { key: 'ams2', id: 'ams2-path', name: 'Automobilista 2' },
         { key: 'rf2', id: 'rf2-path', name: 'rFactor 2' },
         { key: 'lmu', id: 'lmu-path', name: 'Le Mans Ultimate' },
+        { key: 'pmr', id: 'pmr-path', name: 'Project Motor Racing' },
+        { key: 'rennsport', id: 'rennsport-path', name: 'Rennsport' },
         { key: 'rbr', id: 'rbr-path', name: 'Richard Burns Rally' },
         
     ];
@@ -102,14 +106,34 @@
         const formDiv = document.getElementById('global-settings-form');
         let html = '<h3>Apps</h3>';
         
-        // Generate Utility fields
-        UTILITY_LIST_CONFIG.forEach(item => {
-            html += `<div class="setting-item">
+// Generate Utility fields
+    UTILITY_LIST_CONFIG.forEach(item => {
+        
+        if (item.isCustom) {
+             // --- CUSTOM APP: Vykreslení inputu pro jméno i cestu ---
+             // Načtení uživatelského jména, pokud existuje
+             const customName = localStorage.getItem(`simLauncherAppName_${item.key}`) || item.defaultName;
+             
+             html += `<div class="setting-item custom-app-item">
+                         <input type="text" 
+                                id="${item.id}-name" 
+                                value="${customName}" 
+                                placeholder="App Name" 
+                                onchange="saveCustomAppName('${item.key}', this.value)" 
+                                class="custom-app-name-input">
+                         <input type="text" id="${item.id}" placeholder="Path to .exe">
+                         <button onclick="browsePath('${item.id}')">Browse</button>
+                     </div>`;
+                     
+        } else {
+             // --- STANDARDNÍ APP: Vykreslení standardního labelu a cesty ---
+             html += `<div class="setting-item">
                          <label for="${item.id}">${item.name}:</label>
                          <input type="text" id="${item.id}" placeholder="Path to ${item.name}.exe">
                          <button onclick="browsePath('${item.id}')">Browse</button>
                      </div>`;
-        });
+        }
+    });
         
         html += '<h3>Games</h3>';
         
@@ -124,6 +148,26 @@
 
         formDiv.innerHTML = html;
     }
+
+/**
+ * Ukládá uživatelské jméno Custom App do localStorage.
+ * Spouští se automaticky při změně textového pole pro jméno.
+ * @param {string} key Klič aplikace (e.g., 'customapp1').
+ * @param {string} newName Nové jméno.
+ */
+function saveCustomAppName(key, newName) {
+    if (newName && newName.trim() !== "") {
+        // Uložíme jméno pod unikátní klíč
+        localStorage.setItem(`simLauncherAppName_${key}`, newName.trim());
+    } else {
+        // Pokud je jméno prázdné, použijeme defaultní
+        const appConfig = UTILITY_LIST_CONFIG.find(item => item.key === key);
+        if (appConfig) {
+             localStorage.setItem(`simLauncherAppName_${key}`, appConfig.defaultName);
+        }
+    }
+    // Zobrazená jména v editoru se aktualizují při jeho otevření
+}
 
     // --- SAVING/LOADING GLOBAL PATHS ---
 
@@ -221,41 +265,52 @@
     // --- PROFILE EDITOR ---
 
     function showProfileEditor(gameKey, gameName) {
-        currentEditingGameKey = gameKey;
-        const editor = document.getElementById('profile-editor');
-        const checkboxesDiv = document.getElementById('app-checkboxes');
-        checkboxesDiv.innerHTML = '';
+    currentEditingGameKey = gameKey;
+    const editor = document.getElementById('profile-editor');
+    const checkboxesDiv = document.getElementById('app-checkboxes');
+    checkboxesDiv.innerHTML = '';
+    if (currentEditingGameKey === gameKey && editor.style.display === 'block') {
+        // Pokud je editor již otevřen pro TUTO HRA, zavřeme ho
+        hideProfileEditor();
+        return;
+    }
+    document.getElementById('editor-title').textContent = `Profile Settings: ${gameName}`;
+    
+    const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
+    
+    // Generating Utility Checkboxes
+    UTILITY_LIST_CONFIG.forEach(item => {
+        const appKey = item.key;
         
-        document.getElementById('editor-title').textContent = `Profile Settings: ${gameName}`;
+        // --- ZJIŠTĚNÍ JMENA ---
+        let displayName = item.name;
+        if (item.isCustom) {
+            // Použijeme uživatelské jméno z localStorage, nebo defaultní
+            displayName = localStorage.getItem(`simLauncherAppName_${appKey}`) || item.defaultName;
+        }
         
-        const savedProfile = JSON.parse(localStorage.getItem(`profile_${gameKey}`)) || {};
+        // ONLY DISPLAY UTILITIES WITH A SET PATH
+        if (!appPaths[appKey] || appPaths[appKey].trim() === "") {
+            return; // Skip utility if path is empty
+        }
         
-        // Generating Utility Checkboxes
-        UTILITY_LIST_CONFIG.forEach(item => {
-            const appKey = item.key;
-            
-            // ONLY DISPLAY UTILITIES WITH A SET PATH
-            if (!appPaths[appKey] || appPaths[appKey].trim() === "") {
-                return; // Skip utility if path is empty
-            }
-            
-            const div = document.createElement('div');
-            div.classList.add('checkbox-item');
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.id = `check_${appKey}`;
-            input.name = appKey;
-            
-            input.checked = savedProfile[appKey] || false; 
-            
-            const label = document.createElement('label');
-            label.htmlFor = `check_${appKey}`;
-            label.textContent = item.name;
-            
-            div.appendChild(input);
-            div.appendChild(label);
-            checkboxesDiv.appendChild(div);
-        });
+        const div = document.createElement('div');
+        div.classList.add('checkbox-item');
+        const input = document.createElement('input');
+        input.type = 'checkbox';
+        input.id = `check_${appKey}`;
+        input.name = appKey;
+        
+        input.checked = savedProfile[appKey] || false; 
+        
+        const label = document.createElement('label');
+        label.htmlFor = `check_${appKey}`;
+        label.textContent = displayName; // POUŽITÍ DYNAMICKÉHO JMÉNA
+        
+        div.appendChild(input);
+        div.appendChild(label);
+        checkboxesDiv.appendChild(div);
+    });
         
         // Load state for automatic launch
         const autoLaunchCheckbox = document.getElementById('launch-game-automatically');
