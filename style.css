@@ -11,14 +11,6 @@ html, body {
 /* --------------------------
    THEME VARIABLES (single accent)
    -------------------------- */
-   /* 
-    blue = #00eaff
-    red = #ff0044
-    green = #00ff88
-    yellow = #ffdd00
-    purple = #bb00ff
-
-   */
 :root {
   --accent: #00eaff;
   --accent-glow: #00eaff24;
