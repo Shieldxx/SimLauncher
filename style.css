@@ -323,3 +323,39 @@ input[type="text"]:focus {
   margin-right: 8px;
   font-size: 1.1em;        /* slightly bigger */
 }
+
+/* ===== Scrollbar (Chrome / Electron / Edge) ===== */
+
+/* whole scrollbar area */
+::-webkit-scrollbar {
+    width: 10px;
+    background: transparent;
+}
+
+/* track (background behind thumb) */
+::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);     /* subtle */
+    border-radius: 10px;
+}
+
+/* thumb (scroll handle) */
+::-webkit-scrollbar-thumb {
+    background: var(--accent);              /* the actual accent */
+    border-radius: 10px;
+    border: 2px solid #1f1f1f;              /* gives nice frosted outline */
+    background-clip: padding-box;
+    transition: background .2s ease, opacity .2s ease;
+    opacity: 0.7;
+}
+
+/* hover state */
+::-webkit-scrollbar-thumb:hover {
+    opacity: 1;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
+/* optional: scrollbar corner (where both axes meet) */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}

@@ -304,6 +304,7 @@ ipcRenderer.on('browse-path-result', (event, result) => {
 window.onload = () => {
     settings.generateForm();
     settings.load();
+    settings.initAccentPresets();
     ui.generateGameButtons();
     ui.showTab('launcher');
 };
@@ -314,3 +315,96 @@ window.settings = settings;
 window.profiles = profiles;
 window.launchGame = launchGame;
 window.browsePath = browsePath;
+
+// Helper: convert hex like "#rrggbb" to rgba(r,g,b,a)
+function hexToRgba(hex, alpha = 1) {
+    if (!hex) return `rgba(0,234,255,${alpha})`;
+    const h = hex.replace('#','');
+    const r = parseInt(h.substring(0,2), 16);
+    const g = parseInt(h.substring(2,4), 16);
+    const b = parseInt(h.substring(4,6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// Apply accent hex and computed glow (24% opacity)
+function applyAccentColor(hex) {
+    if (!hex || typeof hex !== 'string') return;
+    document.documentElement.style.setProperty('--accent', hex);
+    // compute glow as rgba with 24% alpha
+    const glow = hexToRgba(hex, 0.24);
+    document.documentElement.style.setProperty('--accent-glow', glow);
+}
+
+// Replacement: initialize accent presets and persist custom color separately
+settings.initAccentPresets = () => {
+    const presetSelect = document.getElementById('accent-presets');
+    const customInput = document.getElementById('accent-custom');
+
+    if (!presetSelect || !customInput) return;
+
+    // Load saved values
+    const savedPreset = localStorage.getItem('simLauncherAccentPreset') || '';
+    const savedCustom = localStorage.getItem('simLauncherAccentCustom') || '';
+
+    // Always restore custom input value (so it is remembered even when not active)
+    if (savedCustom) {
+        customInput.value = savedCustom;
+    } else {
+        // keep the color input default in sync with current CSS accent if nothing saved
+        const rootAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00eaff';
+        customInput.value = rootAccent;
+    }
+
+    // Apply saved preset (custom takes precedence)
+    if (savedPreset === 'custom' && customInput.value) {
+        applyAccentColor(customInput.value);
+        presetSelect.value = 'custom';
+        customInput.disabled = false;
+    } else if (savedPreset) {
+        applyAccentColor(savedPreset);
+        presetSelect.value = savedPreset;
+        customInput.disabled = false; // keep input enabled so user can preview/change stored custom if desired
+        // We keep customInput enabled (not strictly required) — you can set to true/false as UX preference.
+        // If you prefer it disabled when not 'custom', change to `customInput.disabled = true;`
+        customInput.disabled = true;
+    } else {
+        // No preset saved: use root accent and keep custom input disabled
+        const rootAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#00eaff';
+        applyAccentColor(rootAccent);
+        presetSelect.value = rootAccent;
+        customInput.disabled = true;
+    }
+
+    // When user selects a preset
+    presetSelect.addEventListener('change', (e) => {
+        const v = e.target.value;
+        if (v === 'custom') {
+            // enable the color control and apply its current value
+            customInput.disabled = false;
+            const color = customInput.value || '#00eaff';
+            applyAccentColor(color);
+            localStorage.setItem('simLauncherAccentPreset', 'custom');
+            // Also persist the current custom color (no loss)
+            localStorage.setItem('simLauncherAccentCustom', color);
+        } else {
+            // If user chooses a preset, disable color input (change if you prefer preview enabled)
+            customInput.disabled = true;
+            applyAccentColor(v);
+            localStorage.setItem('simLauncherAccentPreset', v);
+            // Do NOT clear saved custom value — keep it for later
+        }
+    });
+
+    // When user picks a custom color we ALWAYS save it, even if a non-custom preset is active.
+    customInput.addEventListener('input', (e) => {
+        const color = e.target.value;
+        // Save custom regardless of current preset so it's remembered for later
+        localStorage.setItem('simLauncherAccentCustom', color);
+
+        // If 'custom' preset is active, apply immediately.
+        if (presetSelect.value === 'custom') {
+            applyAccentColor(color);
+            localStorage.setItem('simLauncherAccentPreset', 'custom');
+        }
+    });
+};
