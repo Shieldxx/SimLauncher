@@ -12,55 +12,34 @@
         <button onclick="ui.showTab('settings')">Settings</button>
     </div>
 
-    <div id="launcher" class="tab-content active">
-        <div id="game-list"></div>
-        <div id="status"></div>
+<div id="launcher" class="tab-content active">
+    <div id="game-list"></div>
+    <div id="status"></div>
 
-        <div id="profile-editor" class="editor-panel" style="display: none;">
-            <h2 id="editor-title">Profile Settings</h2>
-            <p>Select which applications to launch with this game:</p>
-            <div id="app-checkboxes"></div>
-            
-            <div class="checkbox-item">
-                <input type="checkbox" id="launch-game-automatically">
-                <label for="launch-game-automatically">Launch game automatically after utilities</label>
-            </div>
-            
-            <button onclick="profiles.save()">Save Profile Settings</button>
-            <button onclick="ui.hideProfileEditor()">Close</button>
-            <div id="profile-status"></div>
-        </div>
-    </div>
-
-    <div id="settings" class="tab-content">
-    <div class="setting-item">
-  <label for="accent-presets">Accent preset:</label>
-  <select id="accent-presets">
-    <!-- options injected by JS; fallback kept for accessibility -->
-    <option value="#00eaff">Electric Aqua</option>
-    <option value="#3498db">SimHub Blue</option>
-    <option value="#00ff88">Racing Green</option>
-    <option value="#f1c40f">CrewChief Yellow</option>
-    <option value="#6e5bfb">Cyber Purple</option>
-    <option value="#ff2233">Milano Red</option>
-    <option value="custom">Custom...</option>
-  </select>
-</div>
-
-<div class="setting-item">
-  <label for="accent-custom">Custom color:</label>
-  <input id="accent-custom" type="color" value="#00eaff" disabled>
-</div>
-
-        <div id="general-settings-form">
-             </div>
-
-        <div id="global-settings-form"></div>
+    <div id="profile-editor" class="editor-panel" style="display: none;">
+        <h2 id="editor-title">Profile Settings</h2>
+        <p>Select which applications to launch with this game:</p>
+        <div id="app-checkboxes"></div>
         
-        <button id="save-settings-btn" onclick="settings.save()">Save Settings</button>
-        <div id="settings-status"></div>
+        <div class="checkbox-item">
+            <input type="checkbox" id="launch-game-automatically">
+            <label for="launch-game-automatically">Launch game automatically after utilities</label>
+        </div>
+        
+        <button onclick="profiles.save()">Save Profile Settings</button>
+        <button onclick="ui.hideProfileEditor()">Close</button>
+        <div id="profile-status"></div>
     </div>
+</div>
 
-    <script src="renderer.js"></script>
+<div id="settings" class="tab-content">
+    <div id="general-settings-form"></div>
+    <div id="global-settings-form"></div>
+
+    <button id="save-settings-btn" onclick="settings.save()">Save Settings</button>
+    <div id="settings-status"></div>
+</div>
+
+<script src="renderer.js"></script>
 </body>
 </html>

@@ -96,42 +96,65 @@ const ui = {
    SETTINGS LOGIC (Global Paths)
    ========================================================================== */
 const settings = {
-    generateForm: () => {
-        const formDiv = document.getElementById('global-settings-form');
-        let html = '<h3>Apps</h3>';
+generateForm: () => {
+    const formDiv = document.getElementById('global-settings-form');
 
-        // Custom & Standard Apps
-        CONFIG.UTILITIES.forEach(item => {
-            if (item.isCustom) {
-                const customName = localStorage.getItem(`simLauncherAppName_${item.key}`) || item.defaultName;
-                html += `
-                    <div class="setting-item custom-app-item">
-                        <input type="text" class="custom-app-name-input" value="${customName}" placeholder="App Name" onchange="settings.saveCustomName('${item.key}', this.value)">
-                        <input type="text" id="${item.id}" placeholder="Path to .exe">
-                        <button onclick="browsePath('${item.id}')">Browse</button>
-                    </div>`;
-            } else {
-                html += `
-                    <div class="setting-item">
-                        <label for="${item.id}">${item.name}:</label>
-                        <input type="text" id="${item.id}" placeholder="Path to ${item.name}.exe">
-                        <button onclick="browsePath('${item.id}')">Browse</button>
-                    </div>`;
-            }
-        });
+    // Insert Accent controls at the top so they follow the same .setting-item layout
+    let html = `
+        <div class="setting-item">
+            <label for="accent-presets">Accent preset:</label>
+            <select id="accent-presets">
+                <option value="#00eaff">Electric Aqua</option>
+                <option value="#3498db">SimHub Blue</option>
+                <option value="#00ff88">Racing Green</option>
+                <option value="#f1c40f">CrewChief Yellow</option>
+                <option value="#6e5bfb">Cyber Purple</option>
+                <option value="#ff2233">Milano Red</option>
+                <option value="custom">Custom...</option>
+            </select>
+        </div>
 
-        html += '<h3>Games</h3>';
-        CONFIG.GAMES.forEach(item => {
+        <div class="setting-item">
+            <label for="accent-custom">Custom color:</label>
+            <input type="color" id="accent-custom" disabled>
+        </div>
+
+        <h3>Apps</h3>
+    `;
+
+    // Custom & Standard Apps
+    CONFIG.UTILITIES.forEach(item => {
+        if (item.isCustom) {
+            const customName = localStorage.getItem(`simLauncherAppName_${item.key}`) || item.defaultName;
+            html += `
+                <div class="setting-item custom-app-item">
+                    <input type="text" class="custom-app-name-input" value="${customName}" placeholder="App Name" onchange="settings.saveCustomName('${item.key}', this.value)">
+                    <input type="text" id="${item.id}" placeholder="Path to .exe">
+                    <button onclick="browsePath('${item.id}')">Browse</button>
+                </div>`;
+        } else {
             html += `
                 <div class="setting-item">
                     <label for="${item.id}">${item.name}:</label>
                     <input type="text" id="${item.id}" placeholder="Path to ${item.name}.exe">
                     <button onclick="browsePath('${item.id}')">Browse</button>
                 </div>`;
-        });
+        }
+    });
 
-        formDiv.innerHTML = html;
-    },
+    html += '<h3>Games</h3>';
+    CONFIG.GAMES.forEach(item => {
+        html += `
+            <div class="setting-item">
+                <label for="${item.id}">${item.name}:</label>
+                <input type="text" id="${item.id}" placeholder="Path to ${item.name}.exe">
+                <button onclick="browsePath('${item.id}')">Browse</button>
+            </div>`;
+    });
+
+    formDiv.innerHTML = html;
+},
+
 
     load: () => {
         state.appPaths = JSON.parse(localStorage.getItem('simLauncherAppPaths')) || {};

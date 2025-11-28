@@ -210,7 +210,6 @@ div#global-settings-form {
 
 .setting-item {
   display: flex;
-  align-items: center; /* vertical center labels + inputs */
   justify-content: space-between;
   width: 520px;
   gap: 12px;           /* horizontal spacing between label and control */
@@ -228,13 +227,15 @@ div#global-settings-form {
 
 /* input sizing to match visual rhythm */
 input[type="text"] {
-  width: 320px;
-  padding: 8px 10px;
+  padding: 0;
+  box-sizing: border-box;
+  width: 180px;
   border-radius: 8px;
   border: 1px solid var(--accent-glow);
   background: rgba(255,255,255,0.04);
   color: white;
 }
+
 input[type="text"]:focus {
   outline: none;
   border-color: var(--accent);
@@ -283,24 +284,8 @@ div#global-settings-form {
     gap: 20px;
 }
 
-.setting-item {
-    display: flex;
-    justify-content: space-between;
-    width: 520px;
-}
-
 label {
     width: 180px;
-}
-
-/* Glow input when focused */
-input[type="text"] {
-    width: 300px;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--accent);
-    background: rgba(255,255,255,0.06);
-    color: white;
 }
 
 input[type="text"]:focus {
@@ -362,3 +347,62 @@ input[type="text"]:focus {
 .setting-item.disabled input[type="color"] {
   filter: grayscale(60%);
 }
+/* === Make preset select + color match Browse buttons === */
+
+/* shared button-like look */
+#accent-presets,
+#accent-custom {
+  height: 48px;
+  width: 91.36px;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  font-size: 1em;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+}
+
+/* color swatch: make swatch box have padding all around so it doesn't touch edges */
+#accent-custom {
+  width: 91.36px;
+  padding: 6px 10px;
+  justify-content: flex-start;
+}
+
+/* style the internal swatch so it sits with top/bottom padding */
+#accent-custom::-webkit-color-swatch-wrapper {
+  padding: 6px;                               /* top / bottom / left / right padding inside the control */
+  box-sizing: border-box;
+}
+#accent-custom::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+  width: calc(100% - 0px);
+  height: 100%;
+  display: block;
+}
+
+/* Hover / focus (same as other buttons) */
+#accent-presets:hover,
+#accent-presets:focus,
+#accent-custom:hover:not(:disabled),
+#accent-custom:focus:not(:disabled) {
+  background: var(--accent);
+  color: black;
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+/* Disabled visual */
+.setting-item.disabled #accent-presets,
+.setting-item.disabled #accent-custom {
+  opacity: 0.45;
+  pointer-events: none;
+  filter: grayscale(40%);
+}
+
