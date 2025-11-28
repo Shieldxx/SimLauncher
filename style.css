@@ -1,33 +1,82 @@
 /* =========================================================
-   BASE
+   BASE (Dark + Glass)
    ========================================================= */
 html, body {
-    background-color: #292929;
-    color: white;
-    font-family: sans-serif;
+    background: #1a1a1a;
+    color: #e6e6e6;
+    font-family: 'Segoe UI', sans-serif;
     margin: 0;
+}
+
+/* --------------------------
+   THEME VARIABLES (single accent)
+   -------------------------- */
+   /* 
+    blue = #00eaff
+    red = #ff0044
+    green = #00ff88
+    yellow = #ffdd00
+    purple = #bb00ff
+
+   */
+:root {
+  --accent: #00eaff;
+  --accent-glow: #00eaff24;
+  --glass-bg: rgba(255,255,255,0.04);
+  --muted: rgba(255,255,255,0.06);
+}
+
+/* Glass effect helper */
+.glass {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 6px 20px #00000040;
+    border-radius: 12px;
 }
 
 h1, h2, h3 {
     text-align: center;
-}
-
-label {
-    width: 150px;
-    align-content: center;
+    margin: 10px 0;
 }
 
 /* =========================================================
-   LAYOUT / TABS
+   NAVIGATION TABS
    ========================================================= */
 #tabs {
     display: flex;
     justify-content: center;
     gap: 15px;
-    padding: 10px;
-    background-color: #00000026;
+    padding: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
+/* Tab buttons */
+#tabs button {
+    padding: 10px 25px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent-glow);
+    color: #fff;
+    cursor: pointer;
+    transition: 0.25s;
+    font-size: 1.05em;
+}
+
+#tabs button:hover {
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+/* =========================================================
+   TAB CONTENT (main container)
+   ========================================================= */
 .tab-content {
     display: none;
     padding: 20px 0;
@@ -39,15 +88,186 @@ label {
     margin: 8px;
 }
 
+/* Centered column list */
+#game-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-top: 18px;
+  padding: 0 8px;
+  box-sizing: border-box;
+}
+
+/* Row: exact width to match settings/editor (520px) */
+.game-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 520px;                 /* MATCHING width */
+  margin: 0 auto;
+  padding: 8px 10px;
+  border-radius: 6px;
+  position: relative;
+  background: transparent;
+  transition: box-shadow .12s ease;  /* removed transform */
+  z-index: 1;
+  box-sizing: border-box;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.game-profile:first-child {
+  border-top: none;
+}
+
+/* Icon: 48x48 frosted */
+.game-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    padding: 2px;
+}
+
+/* Launch button: fixed height to match icon & settings */
+button.launch-icon {
+  height: 48px;                /* same height as icon */
+  display: inline-flex;
+  align-items: center;         /* vertically center text */
+  gap: 8px;
+  padding: 0 14px;             /* horizontal padding only */
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(255,255,255,0.03);
+  color: #eaeaea;
+  transition: background .12s ease, box-shadow .14s ease;
+  z-index: 2;
+  flex: 1;                     /* take remaining horizontal space */
+  min-width: 140px;
+  box-sizing: border-box;
+  text-align: left;            /* preserve left-aligned label */
+}
+
+/* Button hover: accent but no movement */
+button.launch-icon:hover {
+  background: var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+  color: white;
+}
+
+/* Settings gear: also 48x48 */
+.settings-icon {
+  width: 48px;
+  height: 48px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--glass-bg);
+  border: 1px solid var(--muted);
+  transition: background .12s, box-shadow .12s;
+  z-index: 2;
+  box-sizing: border-box;
+}
+.settings-icon:hover {
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+}
+
+/* Editor: match width so everything lines up */
+.editor-panel {
+  width: 520px;                /* MATCHING width */
+  max-width: calc(100% - 40px);
+  margin-top: 8px;
+  margin-left: auto;
+  margin-right: auto;
+  z-index: 3;
+  box-sizing: border-box;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* --------------------------
+   Buttons default (other UI buttons)
+   -------------------------- */
+button {
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--accent);
+  background: rgba(255,255,255,0.06);
+  color: white;
+  cursor: pointer;
+  transition: 0.18s;
+  font-size: 1em;
+}
+button:hover {
+    background: var(--accent);
+    box-shadow: 0 0 15px var(--accent);
+  color: white;
+}
+
+/* --------------------------
+   SETTINGS FORM: spacing & vertical alignment
+   -------------------------- */
+div#global-settings-form {
+  display: grid;
+  justify-content: center;
+  gap: 14px;          /* vertical gap between each setting item */
+  padding: 10px 0;
+}
+
+.setting-item {
+  display: flex;
+  align-items: center; /* vertical center labels + inputs */
+  justify-content: space-between;
+  width: 520px;
+  gap: 12px;           /* horizontal spacing between label and control */
+  box-sizing: border-box;
+}
+
+/* ensure labels align vertically center with inputs/buttons */
+.setting-item label {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  width: 180px;
+  box-sizing: border-box;
+}
+
+/* input sizing to match visual rhythm */
+input[type="text"] {
+  width: 320px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--accent-glow);
+  background: rgba(255,255,255,0.04);
+  color: white;
+}
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+}
+
 /* =========================================================
-   EDITOR PANEL
+   EDITOR PANEL (Game Profile Settings)
    ========================================================= */
 .editor-panel {
     display: none;
-    background: #34495e;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: left;
+    padding: 22px;
+    margin-top: 18px;
+    border-radius: 12px;
+    width: 480px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 6px 25px #00000040;
+    animation: fadeSlide 0.25s ease;
+}
+
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 #app-checkboxes {
@@ -63,98 +283,36 @@ label {
 }
 
 /* =========================================================
-   GAME LIST / GAME CARDS
-   ========================================================= */
-#game-list {
-    display: grid;
-    justify-content: center;
-    justify-items: center;
-    margin-top: 20px;
-    gap: 15px;
-}
-
-.game-profile {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.game-icon {
-    width: 48px;
-    height: 48px;
-    object-fit: contain;
-    padding: 2px;
-    border-radius: 8px;
-    border: 1px solid #3498db;
-}
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-button {
-    padding: 18px;
-    border-radius: 8px;
-    border: 1px solid #f1c40f;
-    background: #ffffff14;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background: #f1c40f !important;
-    color: white !important;
-}
-
-button.launch-icon {
-    width: 350px;
-}
-
-button#save-settings-btn {
-    margin-top: 15px;
-}
-
-/* Game launch button inside card */
-.game-profile button:first-child {
-    min-width: 200px;
-    background-color: #34495e;
-    border: 2px solid #3498db;
-    padding: 10px 20px;
-    font-size: 1.1em;
-}
-
-.game-profile button:first-child:hover {
-    background-color: #3498db;
-}
-
-/* Settings (⚙️) button */
-.settings-icon {
-    width: 54px;
-    height: 54px;
-    padding: 10px;
-    font-size: 1.1em;
-    background: #2c3e50;
-    border: 1px solid #f1c40f;
-    border-radius: 8px;
-}
-
-.settings-icon:hover {
-    background: #f1c40f;
-    color: #2c3e50 !important;
-}
-
-/* =========================================================
-   SETTINGS FORM
+   SETTINGS PAGE
    ========================================================= */
 div#global-settings-form {
     display: grid;
     justify-content: center;
-    gap: 15px;
+    gap: 20px;
 }
 
 .setting-item {
     display: flex;
     justify-content: space-between;
-    align-items: stretch;
-    width: 484px;
+    width: 520px;
+}
+
+label {
+    width: 180px;
+}
+
+/* Glow input when focused */
+input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
 }
