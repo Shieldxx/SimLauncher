@@ -21,16 +21,22 @@ const CONFIG = {
         { key: 'acc', id: 'acc-path', name: 'Assetto Corsa Competizione' },
         { key: 'acevo', id: 'acevo-path', name: 'Assetto Corsa Evo' },
         { key: 'acrally', id: 'acrally-path', name: 'Assetto Corsa Rally' },
+        { key: 'ams', id: 'ams-path', name: 'Automobilista' },
+        { key: 'ams2', id: 'ams2-path', name: 'Automobilista 2' },
         { key: 'beamng', id: 'beamng-path', name: 'BeamNG' },
+        { key: 'dirtrally', id: 'dirtrally-path', name: 'Dirt Rally' },
         { key: 'dirtrally2', id: 'dirtrally2-path', name: 'Dirt Rally 2.0' },
         { key: 'eawrc', id: 'eawrc-path', name: 'EA WRC' },
+        { key: 'f124', id: 'f124-path', name: 'F1 24' },
+        { key: 'f125', id: 'f125-path', name: 'F1 25' },
         { key: 'iracing', id: 'iracing-path', name: 'iRacing' },
-        { key: 'ams2', id: 'ams2-path', name: 'Automobilista 2' },
-        { key: 'rf2', id: 'rf2-path', name: 'rFactor 2' },
         { key: 'lmu', id: 'lmu-path', name: 'Le Mans Ultimate' },
         { key: 'pmr', id: 'pmr-path', name: 'Project Motor Racing' },
+        { key: 'raceroom', id: 'raceroom-path', name: 'RaceRoom Racing Experience' },
+        { key: 'rbr', id: 'rbr-path', name: 'Richard Burns Rally' },
         { key: 'rennsport', id: 'rennsport-path', name: 'Rennsport' },
-        { key: 'rbr', id: 'rbr-path', name: 'Richard Burns Rally' }
+        { key: 'rf1', id: 'rf1-path', name: 'rFactor' },
+        { key: 'rf2', id: 'rf2-path', name: 'rFactor 2' },
     ]
 };
 
