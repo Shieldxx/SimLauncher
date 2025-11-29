@@ -178,7 +178,7 @@ generateForm: () => {
         localStorage.setItem('simLauncherGamePaths', JSON.stringify(state.gamePaths));
 
         const status = document.getElementById('settings-status');
-        notify("Global paths saved!", "success");
+        notify("Settings saved!", "success");
         /*status.style.color = 'lightgreen';*/
         
         setTimeout(() => ui.generateGameButtons(), 50);
