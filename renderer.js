@@ -178,8 +178,8 @@ generateForm: () => {
         localStorage.setItem('simLauncherGamePaths', JSON.stringify(state.gamePaths));
 
         const status = document.getElementById('settings-status');
-        status.textContent = 'Global paths saved!';
-        status.style.color = 'lightgreen';
+        notify("Global paths saved!", "success");
+        /*status.style.color = 'lightgreen';*/
         
         setTimeout(() => ui.generateGameButtons(), 50);
     },
@@ -243,6 +243,7 @@ const profiles = {
     },
 
     save: () => {
+        const gameName = CONFIG.GAMES.find(g => g.key === state.currentEditingGameKey)?.name;
         const profileSettings = {};
         CONFIG.UTILITIES.forEach(item => {
             const checkbox = document.getElementById(`check_${item.key}`);
@@ -253,9 +254,9 @@ const profiles = {
         localStorage.setItem(`profile_${state.currentEditingGameKey}`, JSON.stringify(profileSettings));
 
         const status = document.getElementById('profile-status');
-        status.textContent = `Saved for ${state.currentEditingGameKey.toUpperCase()}!`;
-        status.style.color = 'lightgreen';
-        setTimeout(() => status.textContent = '', 1000);
+        notify(`Profile saved for ${gameName}!`, "success", 2500);
+        /*status.style.color = 'lightgreen';*/
+        /*setTimeout(() => status.textContent = '', 1000);*/
     }
 };
 
@@ -282,7 +283,7 @@ function launchGame(gameKey) {
     if (shouldAutoLaunchGame) {
         if (state.gamePaths[gameKey]) appsToLaunch.push(state.gamePaths[gameKey]);
         else {
-            alert(`ERROR: Path to ${gameName} not set!`);
+            notify(`Path to ${gameName} not set!`, "error", 6000);
             return;
         }
     }
@@ -296,10 +297,10 @@ function launchGame(gameKey) {
                 const msg = shouldAutoLaunchGame 
                     ? `✅ Starting ${gameName} + apps.` 
                     : `✅ Apps started. Launch ${gameName} manually.`;
-                statusDiv.textContent = msg;
+                notify(msg, "success", 4000);
                 setTimeout(() => statusDiv.textContent = '', shouldAutoLaunchGame ? 5000 : 15000);
             } else {
-                statusDiv.textContent = `❌ ERROR: ${result.error}`;
+                notify(`ERROR: ${result.error}`, "error", 5000);
             }
         });
     } else {
@@ -433,4 +434,40 @@ settings.initAccentPresets = () => {
             localStorage.setItem('simLauncherAccentPreset', 'custom');
         }
     });
+};
+/* =====================================================================
+   NOTIFICATION MANAGER (global popup messages)
+   ===================================================================== */
+
+window.notify = function (message, type = 'success', duration = 3000) {
+    const container = document.getElementById('notifications');
+    if (!container) return;
+
+    const el = document.createElement('div');
+    el.className = `notification ${type}`;
+    el.innerHTML = `
+        ${message}
+        <div class="progress"></div>
+    `;
+
+    // Adjust animation duration dynamically
+    const bar = el.querySelector('.progress');
+    bar.style.animationDuration = duration + 'ms';
+
+    container.appendChild(el);
+
+    // Close on click
+    el.addEventListener("click", () => {
+    el.style.opacity = 0;
+    el.style.transform = "translateX(20px) scale(0.95)";
+    setTimeout(() => el.remove(), 50);
+    });
+
+
+    // Remove after duration
+    setTimeout(() => {
+        el.style.opacity = 0;
+        el.style.transform = "translateX(20px)";
+        setTimeout(() => el.remove(), 250);
+    }, duration);
 };

@@ -406,3 +406,69 @@ input[type="text"]:focus {
   filter: grayscale(40%);
 }
 
+/* =========================================================
+   NOTIFICATION POPUPS
+   ========================================================= */
+
+#notifications {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 9999; /* always above UI */
+}
+
+/* Base card */
+.notification {
+    min-width: 260px;
+    max-width: 380px;
+    padding: 16px 18px;
+    border-radius: 10px;
+    font-size: 1.05em;
+    font-weight: 500;
+    color: white;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(12px);
+    border-left: 5px solid var(--accent);   /* will be replaced by status color */
+    box-shadow: 0 4px 18px #00000060;
+    animation: notifSlideIn .25s ease forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Slide-in animation */
+@keyframes notifSlideIn {
+    0%   { opacity: 0; transform: translateX(30px) scale(0.92); }
+    60%  { opacity: 1; transform: translateX(0px) scale(1.03); }
+    100% { opacity: 1; transform: translateX(0px) scale(1.00); }
+}
+
+/* Auto-dismiss progress bar */
+.notification .progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: var(--accent);
+    animation: notifProgress linear forwards;
+}
+
+/* (duration set via JS) */
+@keyframes notifProgress {
+    from { width: 100%; }
+    to   { width: 0%; }
+}
+
+/* Colors based on type */
+.notification.success {
+    border-left-color: #27ae60;
+}
+.notification.warn {
+    border-left-color: #f39c12;
+}
+.notification.error {
+    border-left-color: #e74c3c;
+}

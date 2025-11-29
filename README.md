@@ -9,6 +9,6 @@
 1. Install the app.
 2. Set the game and app paths in the 'Settings' tab and save them.
 3. Select which apps do you want to launch with every title using the settings icon on the 'Launcher' tab.
-4. Check the last setting if you want to launch the game automatically or leave unchecked for manual start.
+4. Check the setting at the bottom if you want to launch the game automatically or leave unchecked for manual start.
 
  Now you can launch all the needed apps for every sim with a simple click of a button!
